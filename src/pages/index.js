@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState, useEffect } from "react"
 import * as D3 from "d3"
 import { useD3 } from "d3blackbox"
 
@@ -13,6 +13,7 @@ const Axis = ({ x, y, scale, axisType, ticks = 10 }) => {
 }
 
 const Datapoint = ({ cx, cy, r, index }) => {
+  const [degrees, setDegrees] = useState(0)
   const data = getRandomData()
   const height = r
   const width = r
@@ -22,6 +23,18 @@ const Datapoint = ({ cx, cy, r, index }) => {
   const yScale = D3.scaleLinear()
     .domain([0, 1])
     .range([height, 0])
+
+  useEffect((cx, cy, index) => {
+    D3.selection()
+      .transition(`spinner-${cx}${cy}`)
+      .tween("spinning", () => {
+        const interpolate = D3.interpolate(0, 360)
+        return t => setDegrees(Math.round(interpolate(t)))
+      })
+      .duration(1000)
+      .ease(D3.easeBounceOut)
+      .delay(500 * index)
+  }, [])
 
   return (
     <g transform={`translate(${cx}, ${cy}) rotate(${degrees})`}>
