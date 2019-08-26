@@ -5,11 +5,34 @@ import { useD3 } from "d3blackbox"
 const getRandomData = () =>
   D3.range(20).map(() => ({ x: Math.random(), y: Math.random() }))
 
-const Axis = ({ x, y, scale, axisType }) => {
+const Axis = ({ x, y, scale, axisType, ticks = 10 }) => {
   const fnName = axisType === "left" ? "axisLeft" : "axisBottom"
-  const ref = useD3(el => D3.select(el).call(D3[fnName](scale)))
+  const ref = useD3(el => D3.select(el).call(D3[fnName](scale).ticks(ticks)))
 
   return <g transform={`translate(${x},${y})`} ref={ref} />
+}
+
+const Datapoint = ({ cx, cy, r, index }) => {
+  const data = getRandomData()
+  const height = r
+  const width = r
+  const xScale = D3.scaleLinear()
+    .domain([0, 1])
+    .range([0, width])
+  const yScale = D3.scaleLinear()
+    .domain([0, 1])
+    .range([height, 0])
+
+  return (
+    <g transform={`translate(${cx}, ${cy}) rotate(${degrees})`}>
+      {/* create a scatterplot of actual data */}
+      {data.map((d, index) => (
+        <circle cx={xScale(d.x)} cy={yScale(d.y)} key={index} r={1} />
+      ))}
+      <Axis x={0} y={0} scale={yScale} axisType="left" ticks={2} />
+      <Axis x={0} y={height} scale={xScale} axisType="bottom" ticks={2} />
+    </g>
+  )
 }
 
 export default () => {
@@ -26,8 +49,14 @@ export default () => {
   return (
     <svg width={width} height={height}>
       {/* create a scatterplot of actual data */}
-      {data.map(d => (
-        <circle cx={xScale(d.x)} cy={yScale(d.y)} id={d.x} r={5} />
+      {data.map((d, index) => (
+        <Datapoint
+          cx={xScale(d.x)}
+          cy={yScale(d.y)}
+          key={index}
+          r={40}
+          index={index}
+        />
       ))}
       <Axis x={40} y={0} scale={yScale} axisType="left" />
       <Axis x={0} y={height - 40} scale={xScale} axisType="bottom" />
