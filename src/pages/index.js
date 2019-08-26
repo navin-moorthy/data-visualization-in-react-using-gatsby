@@ -24,7 +24,7 @@ const Datapoint = ({ cx, cy, r, index }) => {
     .domain([0, 1])
     .range([height, 0])
 
-  useEffect((cx, cy, index) => {
+  useEffect(() => {
     D3.selection()
       .transition(`spinner-${cx}${cy}`)
       .tween("spinning", () => {
